@@ -1,0 +1,7 @@
+POST http://127.0.0.1:8000/audio_record
+Content-Type: application/json
+
+{
+    "file_name": "http",
+    "duration": 5
+}
