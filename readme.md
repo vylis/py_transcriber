@@ -1,6 +1,6 @@
 # PY_TRANSCRIBER
 
-Record your voice, transcribe it, translate in another language and transform the translation into speech.
+Record your voice, transcribe it, translate it in another language and transform the translated text back into speech.
 
 ## Getting Started
 
