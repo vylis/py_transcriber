@@ -1,21 +1,20 @@
 from fastapi import FastAPI, Query
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from pathlib import Path
-from dotenv import load_dotenv
 
 from src.audio_recorder import audio_record
 from src.speech_recognizer import speech_recognition
+from src.text_translater import text_translate
+from src.text_to_speech import text_to_speech
 
 from payloads.audio_record_payload import audio_record_payload
 from payloads.speech_recognition_payload import speech_recognition_payload
-from payloads.record_and_transcribe_payload import record_and_transcribe_payload
-
-load_dotenv(Path(__file__).parent / ".env")
+from payloads.record_and_translate_payload import record_and_translate_payload
+from payloads.text_translate_payload import text_translate_payload
+from payloads.text_to_speech_payload import text_to_speech_payload
 
 
 class AudioRecordModel(BaseModel):
-    file_name: str = Query(..., description="Name of the file to be saved")
     duration: int = Query(..., description="Duration of the recording")
     model_config = {"json_schema_extra": {"examples": [audio_record_payload]}}
 
@@ -26,11 +25,23 @@ class SpeechRecognitionModel(BaseModel):
     model_config = {"json_schema_extra": {"examples": [speech_recognition_payload]}}
 
 
+class TextTranslateModel(BaseModel):
+    text_data: str = Query(..., description="Text data to be translated")
+    language: str = Query(..., description="Locale language of the text")
+    model_config = {"json_schema_extra": {"examples": [text_translate_payload]}}
+
+
+class TextToSpeechModel(BaseModel):
+    text_data: str = Query(..., description="Text data to be converted to speech")
+    language: str = Query(..., description="Locale language of the text")
+    model_config = {"json_schema_extra": {"examples": [text_to_speech_payload]}}
+
+
 class RecordAndTranscribeModel(BaseModel):
-    file_name: str = Query(..., description="Name of the file to be saved")
     duration: int = Query(..., description="Duration of the recording")
     language: str = Query(..., description="Locale language of the audio")
-    model_config = {"json_schema_extra": {"examples": [record_and_transcribe_payload]}}
+    target_language: str = Query(..., description="Target language for translation")
+    model_config = {"json_schema_extra": {"examples": [record_and_translate_payload]}}
 
 
 app = FastAPI(
@@ -49,7 +60,7 @@ async def root():
 @app.post("/audio_record")
 async def audio_record_route(input: AudioRecordModel):
     try:
-        response = audio_record(input.file_name, input.duration)
+        response = audio_record(input.duration)
 
         if response:
             return JSONResponse(
@@ -72,13 +83,32 @@ async def speech_recognition_route(input: SpeechRecognitionModel):
         return JSONResponse(status_code=400, content={"error": str(e)})
 
 
-@app.post("/record_and_transcribe")
-async def record_and_transcribe_route(input: RecordAndTranscribeModel):
+# text_translate
+@app.post("/text_translate")
+async def text_translate_route(input: TextTranslateModel):
+    try:
+        response = text_translate(input.text_data, input.language)
+        return JSONResponse(status_code=200, content=response)
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"error": str(e)})
+
+
+# text_to_speech
+@app.post("/text_to_speech")
+async def text_to_speech_route(input: TextToSpeechModel):
+    try:
+        response = text_to_speech(input.text_data, input.language)
+        return JSONResponse(status_code=200, content=response)
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"error": str(e)})
+
+
+# record_and_translate
+@app.post("/record_and_translate")
+async def record_and_translate_route(input: RecordAndTranscribeModel):
     try:
         # record audio
-        audio_data_path = audio_record(input.file_name, input.duration)
-
-        print(audio_data_path)
+        audio_data_path = audio_record(input.duration)
 
         if audio_data_path:
             # read audio data
@@ -87,9 +117,24 @@ async def record_and_transcribe_route(input: RecordAndTranscribeModel):
 
             # transcribe audio data
             response = speech_recognition(audio_data, input.language)
+            response_text = response["word"]
 
             if response:
-                return JSONResponse(status_code=200, content=response)
+                # translate the transcribed text
+                translated = text_translate(response_text, input.target_language)
+                translated_text = translated["translated_text"]
+
+                # convert the translated text to speech
+                speech_response = text_to_speech(translated_text, input.target_language)
+
+                return JSONResponse(
+                    status_code=200,
+                    content={
+                        "recognized": response,
+                        "translated": translated_text,
+                        "speech": speech_response,
+                    },
+                )
             else:
                 return JSONResponse(
                     status_code=400, content={"error": "Transcription failed."}

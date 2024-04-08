@@ -1,0 +1,7 @@
+POST http://127.0.0.1:8000/text_translate
+Content-Type: application/json
+
+{
+    "text_data": "Bonjour, comment ça va?",
+    "language": "ru"  
+}

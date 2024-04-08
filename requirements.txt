@@ -1,8 +1,12 @@
-uvicorn
 fastapi
-fastapi_restful
-pydantic
-pytest
-python-dotenv
+uvicorn
+
 pyaudio
 vosk
+
+deep_translator
+gTTS
+
+pytest
+starlette
+httpx

@@ -1,1 +1,1 @@
-audio_record_payload = {"file_name": "recorded_audio", "duration": 5}
+audio_record_payload = {"duration": 5}

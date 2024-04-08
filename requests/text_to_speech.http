@@ -1,0 +1,7 @@
+POST http://127.0.0.1:8000/text_to_speech
+Content-Type: application/json
+
+{
+    "text_data": "Привет, как дела?",
+    "language": "ru"
+}

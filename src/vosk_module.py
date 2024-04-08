@@ -8,13 +8,13 @@ class VoskModule:
     vosk.SetLogLevel(-1)
 
     @staticmethod
-    def save_audio_data_to_wav(audio_data: str, output_path: str):
+    def save_audio_data_to_wav(audio_data: str, file_path: str):
         try:
             # decode base64 audio_data
             wav_audio = base64.b64decode(audio_data)
 
             # set wav file parameters and save the audio
-            with wave.open(output_path, "wb") as wav_file:
+            with wave.open(file_path, "wb") as wav_file:
                 wav_file.setnchannels(1)
                 wav_file.setsampwidth(2)
                 wav_file.setframerate(44100)

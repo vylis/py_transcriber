@@ -1,3 +1,4 @@
+import os
 import base64
 import pyaudio
 import wave
@@ -5,8 +6,11 @@ import time
 from datetime import datetime
 
 
-def audio_record(file_name: str, duration: int) -> str:
+def audio_record(duration: int) -> str:
     try:
+        # create folder
+        os.makedirs("./output/recorded", exist_ok=True)
+
         # record parameters
         audio = pyaudio.PyAudio()
         format_ = pyaudio.paInt16
@@ -43,7 +47,7 @@ def audio_record(file_name: str, duration: int) -> str:
         current_date = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
         # save audio to wav file
-        file_path = f"./output/{file_name}_{current_date}.wav"
+        file_path = f"./output/recorded/recorded_{current_date}.wav"
         with wave.open(file_path, "wb") as wf:
             wf.setnchannels(channels)
             wf.setsampwidth(audio.get_sample_size(format_))
@@ -56,12 +60,12 @@ def audio_record(file_name: str, duration: int) -> str:
             encoded_audio = base64.b64encode(audio_bytes).decode("utf-8")
 
         # save audio data to txt file
-        output_path = f"./output/{file_name}_{current_date}_data.txt"
-        with open(output_path, "w") as output_file:
+        file_path = f"./output/recorded/recorded_{current_date}.txt"
+        with open(file_path, "w") as output_file:
             output_file.write(encoded_audio)
 
-        print(f"Audio data saved to {output_path}")
-        return output_path
+        print(f"Audio recorded saved to {file_path}")
+        return file_path
 
     except Exception as e:
         print(f"Error occurred while recording audio: {e}")

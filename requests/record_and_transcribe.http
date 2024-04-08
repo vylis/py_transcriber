@@ -1,8 +1,0 @@
-POST http://127.0.0.1:8000/record_and_transcribe
-Content-Type: application/json
-
-{
-    "file_name": "record_and_transcribe",
-    "duration": 5,
-    "language": "en-us"  
-}

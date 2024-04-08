@@ -1,0 +1,8 @@
+POST http://127.0.0.1:8000/record_and_translate
+Content-Type: application/json
+
+{
+    "duration": 5,
+    "language": "fr",
+    "target_language": "en"
+}
