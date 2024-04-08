@@ -4,7 +4,7 @@ Record your voice, transcribe it, translate in another language and transform th
 
 ## Getting Started
 
-1. **Add Vosk models**: Download your preferred Vosk models from [here](https://alphacephei.com/vosk/models) and place them into the `models/` directory.
+1. **Add Vosk models**: Download your Vosk models [here](https://alphacephei.com/vosk/models) and place them into the `models/` directory.
 
 2. **Install dependencies**: Run `pip install -r requirements.txt` in your terminal to install the necessary dependencies.
 
